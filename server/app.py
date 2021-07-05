@@ -6,20 +6,20 @@ from flask_cors import CORS
 BOOKS = [
     {
         'id': uuid.uuid4().hex,
-        'title': 'On the Road',
-        'author': 'Jack Kerouac',
+        'title': 'Dom Casmurro',
+        'author': 'Machado de Assis',
         'read': True
     },
     {
         'id': uuid.uuid4().hex,
-        'title': 'Harry Potter and the Philosopher\'s Stone',
+        'title': 'Harry Potter e a pedra filosofal',
         'author': 'J. K. Rowling',
         'read': False
     },
     {
         'id': uuid.uuid4().hex,
-        'title': 'Green Eggs and Ham',
-        'author': 'Dr. Seuss',
+        'title': 'O Menino maluqinho',
+        'author': 'Ziraldo',
         'read': True
     }
 ]
