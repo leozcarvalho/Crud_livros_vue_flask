@@ -4,8 +4,15 @@
       <div class="col-sm-10">
         <h1>Livros</h1>
         <hr><br><br>
-        <alert :message=message v-if="showMessage"></alert>
-        <button type="button" class="btn btn-success btn-sm" v-b-modal.book-modal>Add Livro</button>
+        <b-alert
+            :show="dismissCountDown"
+            dismissible
+            @dismissed="dismissCountDown=0"
+            @dismiss-count-down="countDownChanged"
+            >{{ message }}
+        </b-alert>
+        <button type="button" class="btn btn-success btn-sm" v-b-modal.book-modal
+        @click="onShowModalInsert">Add Livro</button>
         <br><br>
         <table class="table table-hover">
           <thead>
@@ -17,7 +24,9 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(book, index) in books" :key="index">
+            <h3 v-if = "this.books.length === 0" >
+              Você não possui livros adicionados.</h3>
+            <tr v-else v-for="(book, index) in books" :key="index">
               <td>{{ book.title }}</td>
               <td>{{ book.author }}</td>
               <td>
@@ -29,70 +38,42 @@
                   <button
                           type="button"
                           class="btn btn-warning btn-sm"
-                          v-b-modal.book-update-modal
+                          v-b-modal.book-modal
                           @click="editBook(book)">
-                      Atualizar
+                      Alterar
                   </button>
-                  <button
-                          type="button"
-                          class="btn btn-danger btn-sm"
-                          @click="onDeleteBook(book)">
+                  <b-button type="button" class="btn btn-danger btn-sm"
+                      @click="onShowDelete(book.id)">
                       Excluir
-                  </button>
+                  </b-button>
                 </div>
               </td>
             </tr>
+            <b-modal id="modal-del" hide-footer>
+                    <template>
+                        Confirmar Ação
+                    </template>
+                    <div class="d-block text-center">
+                        <button type="button" class="btn btn-danger btn-lg"
+                        @click ="onDeleteBook">
+                        Excluir</button>
+                    </div>
+            </b-modal>
           </tbody>
         </table>
       </div>
     </div>
-    <b-modal ref="addBookModal"
+    <b-modal ref="BookModal"
             id="book-modal"
-            title="Adicione um novo livro"
+            :title = "tituloModal"
             hide-footer>
-      <b-form @submit="onSubmit" @reset="onReset" class="w-100">
-      <b-form-group id="form-title-group"
-                    label="Título:"
-                    label-for="form-title-input">
-          <b-form-input id="form-title-input"
-                        type="text"
-                        v-model="addBookForm.title"
-                        required
-                        placeholder="Insira o título">
-          </b-form-input>
-        </b-form-group>
-        <b-form-group id="form-author-group"
-                      label="Autor:"
-                      label-for="form-author-input">
-            <b-form-input id="form-author-input"
-                          type="text"
-                          v-model="addBookForm.author"
-                          required
-                          placeholder="Insira o autor">
-            </b-form-input>
-          </b-form-group>
-        <b-form-group id="form-read-group">
-          <b-form-checkbox-group v-model="addBookForm.read" id="form-checks">
-            <b-form-checkbox value="true">Lido?</b-form-checkbox>
-          </b-form-checkbox-group>
-        </b-form-group>
-        <b-button-group>
-          <b-button type="submit" variant="primary">Salvar</b-button>
-          <b-button type="reset" variant="danger">Cancelar</b-button>
-        </b-button-group>
-      </b-form>
-    </b-modal>
-    <b-modal ref="editBookModal"
-            id="book-update-modal"
-            title="Atualizar"
-            hide-footer>
-      <b-form @submit="onSubmitUpdate" @reset="onResetUpdate" class="w-100">
+      <b-form @submit="onSubmit" @reset="onResetUpdate" class="w-100">
       <b-form-group id="form-title-edit-group"
                     label="Título:"
                     label-for="form-title-edit-input">
           <b-form-input id="form-title-edit-input"
                         type="text"
-                        v-model="editForm.title"
+                        v-model="BookForm.title"
                         required
                         placeholder="Insira o título">
           </b-form-input>
@@ -102,13 +83,13 @@
                       label-for="form-author-edit-input">
             <b-form-input id="form-author-edit-input"
                           type="text"
-                          v-model="editForm.author"
+                          v-model="BookForm.author"
                           required
                           placeholder="Insira o autor">
             </b-form-input>
           </b-form-group>
         <b-form-group id="form-read-edit-group">
-          <b-form-checkbox-group v-model="editForm.read" id="form-checks">
+          <b-form-checkbox-group v-model="BookForm.read" id="form-checks">
             <b-form-checkbox value="true">Lido?</b-form-checkbox>
           </b-form-checkbox-group>
         </b-form-group>
@@ -123,31 +104,42 @@
 
 <script>
 import axios from 'axios';
-import Alert from './Alert.vue';
 
 export default {
   data() {
     return {
       books: [],
-      addBookForm: {
+      BookForm: {
+        id: 'Null',
         title: '',
         author: '',
-        read: [],
+        read: 'Null',
       },
       message: '',
+      bookId: '',
       showMessage: false,
-      editForm: {
-        id: '',
-        title: '',
-        author: '',
-        read: [],
-      },
+      dismissCountDown: 0,
+      tituloModal: '',
     };
   },
   components: {
-    alert: Alert,
   },
   methods: {
+    onShowDelete(bookId) {
+      this.bookId = bookId;
+      this.$bvModal.show('modal-del');
+    },
+    onShowModalInsert() {
+      this.tituloModal = 'Adicionar Livro';
+      this.initForm();
+    },
+    showAlert(message) {
+      this.dismissCountDown = 5;
+      this.message = message;
+    },
+    countDownChanged(dismissCountDown) {
+      this.dismissCountDown = dismissCountDown;
+    },
     getBooks() {
       const path = 'http://localhost:5000/books';
       axios.get(path)
@@ -164,7 +156,7 @@ export default {
       axios.post(path, payload)
         .then(() => {
           this.getBooks();
-          this.message = 'Livro Adicionado!';
+          this.showAlert('Livro Adicionado!');
           this.showMessage = true;
         })
         .catch((error) => {
@@ -172,48 +164,6 @@ export default {
           console.log(error);
           this.getBooks();
         });
-    },
-    initForm() {
-      this.addBookForm.title = '';
-      this.addBookForm.author = '';
-      this.addBookForm.read = [];
-      this.editForm.id = '';
-      this.editForm.title = '';
-      this.editForm.author = '';
-      this.editForm.read = [];
-    },
-    onSubmit(evt) {
-      evt.preventDefault();
-      this.$refs.addBookModal.hide();
-      let read = false;
-      if (this.addBookForm.read[0]) read = true;
-      const payload = {
-        title: this.addBookForm.title,
-        author: this.addBookForm.author,
-        read, // property shorthand
-      };
-      this.addBook(payload);
-      this.initForm();
-    },
-    onReset(evt) {
-      evt.preventDefault();
-      this.$refs.addBookModal.hide();
-      this.initForm();
-    },
-    editBook(book) {
-      this.editForm = book;
-    },
-    onSubmitUpdate(evt) {
-      evt.preventDefault();
-      this.$refs.editBookModal.hide();
-      let read = false;
-      if (this.editForm.read[0]) read = true;
-      const payload = {
-        title: this.editForm.title,
-        author: this.editForm.author,
-        read,
-      };
-      this.updateBook(payload, this.editForm.id);
     },
     updateBook(payload, bookID) {
       const path = `http://localhost:5000/books/${bookID}`;
@@ -229,9 +179,41 @@ export default {
           this.getBooks();
         });
     },
+    initForm() {
+      this.BookForm.title = '';
+      this.BookForm.author = '';
+      this.BookForm.read = [];
+      this.BookForm.id = '';
+    },
+    onSubmit(evt) {
+      evt.preventDefault();
+      this.$refs.BookModal.hide();
+      let read = false;
+      if (this.BookForm.read[0]) read = true;
+      const payload = {
+        title: this.BookForm.title,
+        author: this.BookForm.author,
+        read, // property shorthand
+      };
+      if (this.tituloModal === 'Adicionar Livro') {
+        this.addBook(payload);
+      } else {
+        this.updateBook(payload, this.BookForm.id);
+      }
+      this.initForm();
+    },
+    onReset(evt) {
+      evt.preventDefault();
+      this.$refs.BookModal.hide();
+      this.initForm();
+    },
+    editBook(book) {
+      this.tituloModal = 'Alterar';
+      this.BookForm = book;
+    },
     onResetUpdate(evt) {
       evt.preventDefault();
-      this.$refs.editBookModal.hide();
+      this.$refs.BookModal.hide();
       this.initForm();
       this.getBooks(); // why?
     },
@@ -249,8 +231,9 @@ export default {
           this.getBooks();
         });
     },
-    onDeleteBook(book) {
-      this.removeBook(book.id);
+    onDeleteBook() {
+      this.removeBook(this.bookId);
+      this.$bvModal.hide('modal-del');
     },
   },
   created() {
@@ -258,3 +241,4 @@ export default {
   },
 };
 </script>
+
