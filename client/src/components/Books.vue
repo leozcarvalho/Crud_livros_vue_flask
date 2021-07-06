@@ -64,6 +64,7 @@
         </table>
       </div>
     </div>
+<!---------------------------------MODAL----------------------------------------------------->
     <b-modal ref="BookModal"
             id="book-modal"
             :title = "tituloModal"
@@ -80,7 +81,7 @@
           </b-form-input>
         </b-form-group>
         <b-form-group id="form-author-edit-group"
-                      label="Author:"
+                      label="Autor:"
                       label-for="form-author-edit-input">
             <b-form-input id="form-author-edit-input"
                           type="text"
@@ -94,11 +95,12 @@
             value="true">Lido?</b-form-checkbox>
         </b-form-group>
         <b-button-group>
-          <b-button type="submit" variant="primary">Atualizar</b-button>
+          <b-button type="submit" variant="primary">{{ botao }}</b-button>
           <b-button type="reset" variant="danger">Cancelar</b-button>
         </b-button-group>
       </b-form>
     </b-modal>
+<!-------------------------------------------FIM_MODAL----------------------------------------->
   </div>
 </template>
 
@@ -121,6 +123,7 @@ export default {
       dismissCountDown: 0,
       tituloModal: '',
       variant: '',
+      botao: '',
     };
   },
   components: {
@@ -132,6 +135,7 @@ export default {
     },
     onShowModalInsert() {
       this.tituloModal = 'Adicionar Livro';
+      this.botao = 'Adicionar';
       this.initForm();
     },
     showAlert(message, variant) {
@@ -158,7 +162,7 @@ export default {
       axios.post(path, payload)
         .then(() => {
           this.getBooks();
-          this.showAlert('Livro Adicionado!', 'sucess');
+          this.showAlert('Livro Adicionado!', 'info');
           this.showMessage = true;
         })
         .catch((error) => {
@@ -212,6 +216,7 @@ export default {
     },
     editBook(book) {
       this.tituloModal = 'Alterar';
+      this.botao = 'Atualizar';
       this.BookForm = book;
     },
     onResetUpdate(evt) {
