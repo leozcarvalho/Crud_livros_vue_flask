@@ -89,9 +89,8 @@
             </b-form-input>
           </b-form-group>
         <b-form-group id="form-read-edit-group">
-          <b-form-checkbox-group v-model="BookForm.read" id="form-checks">
-            <b-form-checkbox value="true">Lido?</b-form-checkbox>
-          </b-form-checkbox-group>
+            <b-form-checkbox v-model="BookForm.read"
+            value="true">Lido?</b-form-checkbox>
         </b-form-group>
         <b-button-group>
           <b-button type="submit" variant="primary">Atualizar</b-button>
@@ -241,4 +240,3 @@ export default {
   },
 };
 </script>
-
