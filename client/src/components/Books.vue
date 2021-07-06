@@ -5,6 +5,7 @@
         <h1>Livros</h1>
         <hr><br><br>
         <b-alert
+            :variant = "variant"
             :show="dismissCountDown"
             dismissible
             @dismissed="dismissCountDown=0"
@@ -119,6 +120,7 @@ export default {
       showMessage: false,
       dismissCountDown: 0,
       tituloModal: '',
+      variant: '',
     };
   },
   components: {
@@ -132,8 +134,9 @@ export default {
       this.tituloModal = 'Adicionar Livro';
       this.initForm();
     },
-    showAlert(message) {
+    showAlert(message, variant) {
       this.dismissCountDown = 5;
+      this.variant = variant;
       this.message = message;
     },
     countDownChanged(dismissCountDown) {
@@ -155,7 +158,7 @@ export default {
       axios.post(path, payload)
         .then(() => {
           this.getBooks();
-          this.showAlert('Livro Adicionado!');
+          this.showAlert('Livro Adicionado!', 'sucess');
           this.showMessage = true;
         })
         .catch((error) => {
@@ -166,10 +169,11 @@ export default {
     },
     updateBook(payload, bookID) {
       const path = `http://localhost:5000/books/${bookID}`;
+      console.log('teste');
       axios.put(path, payload)
         .then(() => {
           this.getBooks();
-          this.message = 'Livro Atualizado!';
+          this.showAlert('Livro Atualizado!', 'primary');
           this.showMessage = true;
         })
         .catch((error) => {
@@ -221,7 +225,7 @@ export default {
       axios.delete(path)
         .then(() => {
           this.getBooks();
-          this.message = 'Livro Removido!';
+          this.showAlert('Livro Removido!', 'danger');
           this.showMessage = true;
         })
         .catch((error) => {
