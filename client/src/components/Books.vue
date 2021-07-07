@@ -27,7 +27,7 @@
           <tbody>
             <h3 v-if = "this.books.length === 0" >
               Você não possui livros adicionados.</h3>
-            <tr v-else v-for="(book, index) in books" :key="index">
+            <tr  v-for="(book, index) in books" :key="index">
               <td>{{ book.title }}</td>
               <td>{{ book.author }}</td>
               <td>
@@ -150,6 +150,8 @@ export default {
       const path = 'http://localhost:5000/books';
       axios.get(path)
         .then((res) => {
+          console.log(res.data.books);
+          console.log(this.books);
           this.books = res.data.books;
         })
         .catch((error) => {
