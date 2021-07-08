@@ -50,6 +50,7 @@
                 </div>
               </td>
             </tr>
+          <!--------------------Modal Excluir ------------------------------>
             <b-modal id="modal-del" hide-footer>
                     <template>
                         Confirmar Ação
@@ -60,6 +61,7 @@
                         Excluir</button>
                     </div>
             </b-modal>
+          <!------------------------------------------------------------------>
           </tbody>
         </table>
       </div>
@@ -115,7 +117,7 @@ export default {
         id: 'Null',
         title: '',
         author: '',
-        read: 'Null',
+        read: false,
       },
       message: '',
       bookId: '',
@@ -150,8 +152,6 @@ export default {
       const path = 'http://localhost:5000/books';
       axios.get(path)
         .then((res) => {
-          console.log(res.data.books);
-          console.log(this.books);
           this.books = res.data.books;
         })
         .catch((error) => {
@@ -175,7 +175,6 @@ export default {
     },
     updateBook(payload, bookID) {
       const path = `http://localhost:5000/books/${bookID}`;
-      console.log('teste');
       axios.put(path, payload)
         .then(() => {
           this.getBooks();
@@ -191,14 +190,16 @@ export default {
     initForm() {
       this.BookForm.title = '';
       this.BookForm.author = '';
-      this.BookForm.read = [];
+      this.BookForm.read = false;
       this.BookForm.id = '';
     },
     onSubmit(evt) {
       evt.preventDefault();
       this.$refs.BookModal.hide();
       let read = false;
-      if (this.BookForm.read[0]) read = true;
+      if (this.BookForm.read) {
+        read = true;
+      }
       const payload = {
         title: this.BookForm.title,
         author: this.BookForm.author,
